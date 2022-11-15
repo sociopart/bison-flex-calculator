@@ -49,18 +49,11 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    OP_MULT = 258,
-    OP_DIV = 259,
-    OP_PLUS = 260,
-    OP_MINUS = 261,
-    OP_EQUAL = 262,
-    OP_L_PAREN = 263,
-    OP_R_PAREN = 264,
-    CMD_PRINT = 265,
-    CMD_EXIT = 266,
-    NUMBER = 267,
-    VALUE_ID = 268,
-    UOP_MINUS = 269
+    CMD_PRINT = 258,
+    CMD_EXIT = 259,
+    NUMBER = 260,
+    VALUE_ID = 261,
+    UOP_MINUS = 262
   };
 #endif
 
@@ -74,7 +67,7 @@ union YYSTYPE
     int ival;
     char id;
 
-#line 78 "parser.tab.h"
+#line 71 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

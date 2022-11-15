@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <ctype.h>
 
-    double yylex();
+    int yylex();
     void yyerror(char *s);
 
     double symbols[52];
@@ -22,42 +22,39 @@
 
 %start line
 
-%token OP_MULT OP_DIV OP_PLUS OP_MINUS OP_EQUAL OP_L_PAREN OP_R_PAREN 
 %token CMD_PRINT CMD_EXIT
 %token <dval> NUMBER
 %token <id> VALUE_ID
 
-%left OP_PLUS OP_MINUS OP_MULT OP_DIV
+%left '+' '-'
+%left '*' '/'
 %nonassoc UOP_MINUS
 
-%type <dval> line exp term
-%type <id> assignment
+%type <dval> exp
 
 /* ========================================================================== */
 %%
 
-line    : assignment ';'         {;}
-        | CMD_EXIT ';'       {exit(EXIT_SUCCESS);}
-        | CMD_PRINT exp ';'          {printf("= %3f\n", $2);}
-        | line assignment ';'    {;}
-        | line CMD_PRINT exp ';'     {printf("= %3f\n", $3);}
-        | line CMD_EXIT ';'  {exit(EXIT_SUCCESS);}
-        ;
+line    : assignment ';'                {;}
+        | CMD_EXIT ';'                  {exit(EXIT_SUCCESS);}
+        | CMD_PRINT exp ';'             {printf("= %3f\n", $2);}
+        | line assignment ';'           {;}
+        | line CMD_PRINT exp ';'        {printf("= %3f\n", $3);}
+        | line CMD_EXIT ';'             {exit(EXIT_SUCCESS);}
+        | exp                           {;}
 
-assignment : VALUE_ID OP_EQUAL exp  { updateSymbolVal($1,$3); }
+exp     : assignment ';'        {;}
+        | CMD_EXIT ';'          {exit(EXIT_SUCCESS);}
+        | CMD_PRINT exp ';'     {printf("= %3f\n", $2);}
+        | exp '+' exp           {$$ = $1 + $3;}
+        | exp '-' exp           {$$ = $1 - $3;}
+        | exp '*' exp           {$$ = $1 * $3;}
+        | exp '/' exp           {$$ = $1 / $3;}
+        | VALUE_ID              {$$ = symbolVal($1);}
+        | NUMBER                {$$ = $1;}
+
+assignment : VALUE_ID '=' exp   { updateSymbolVal($1, $3); }
            ;
-
-exp     : term                   {$$ = $1;}
-        | exp OP_PLUS term           {$$ = $1 + $3;}
-        | exp OP_MINUS term           {$$ = $1 - $3;}
-        | exp OP_MULT term           {$$ = $1 * $3;}
-        | exp OP_DIV term           {$$ = $1 / $3;}
-        ;
-
-term    : NUMBER                 {$$ = $1;}
-        | VALUE_ID             {$$ = symbolVal($1);} 
-        ;
-
 %%
 
 /* ========================================================================== */
@@ -88,12 +85,9 @@ void yyerror(char *s) {
 }
 
 int main(void) {
-    #ifdef YYDEBUG
-        yydebug = 1;
-    #endif
 
     int i;
-    for(i=0; i<52; i++) {
+    for(i = 0; i < 52; i++) {
         symbols[i] = 0;
     }
     return yyparse();
