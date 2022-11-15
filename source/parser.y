@@ -3,64 +3,71 @@
     #include <stdlib.h>
     #include <ctype.h>
 
-    int symbols[52];
-
-    int yylex();
+    double yylex();
     void yyerror(char *s);
 
-    int symbolVal(char symbol);
-    void updateSymbolVal(char symbol, int val);
+    double symbols[52];
+
+    double symbolVal(char symbol);
+    void updateSymbolVal(char symbol, double val);
     int computeSymbolIndex(char token);
 %}
 
+/* ========================================================================== */
 %union {
-    int num;
+    double dval;
+    int ival;
     char id;
 }
 
 %start line
 
-%token print
-%token exit_command
+%token OP_MULT OP_DIV OP_PLUS OP_MINUS OP_EQUAL OP_L_PAREN OP_R_PAREN 
+%token CMD_PRINT CMD_EXIT
+%token <dval> NUMBER
+%token <id> VALUE_ID
 
-%token <num> number
-%token <id> identifier
+%left OP_PLUS OP_MINUS OP_MULT OP_DIV
+%nonassoc UOP_MINUS
 
-%type <num> line exp term 
+%type <dval> line exp term
 %type <id> assignment
 
+/* ========================================================================== */
 %%
 
 line    : assignment ';'         {;}
-        | exit_command ';'       {exit(EXIT_SUCCESS);}
-        | print exp ';'          {printf("= %d\n", $2);}
+        | CMD_EXIT ';'       {exit(EXIT_SUCCESS);}
+        | CMD_PRINT exp ';'          {printf("= %3f\n", $2);}
         | line assignment ';'    {;}
-        | line print exp ';'     {printf("= %d\n", $3);}
-        | line exit_command ';'  {exit(EXIT_SUCCESS);}
+        | line CMD_PRINT exp ';'     {printf("= %3f\n", $3);}
+        | line CMD_EXIT ';'  {exit(EXIT_SUCCESS);}
         ;
 
-assignment : identifier '=' exp  { updateSymbolVal($1,$3); }
+assignment : VALUE_ID OP_EQUAL exp  { updateSymbolVal($1,$3); }
            ;
 
 exp     : term                   {$$ = $1;}
-        | exp '+' term           {$$ = $1 + $3;}
-        | exp '-' term           {$$ = $1 - $3;}
-        | exp '*' term           {$$ = $1 * $3;}
-        | exp '/' term           {$$ = $1 / $3;}
+        | exp OP_PLUS term           {$$ = $1 + $3;}
+        | exp OP_MINUS term           {$$ = $1 - $3;}
+        | exp OP_MULT term           {$$ = $1 * $3;}
+        | exp OP_DIV term           {$$ = $1 / $3;}
         ;
 
-term    : number                 {$$ = $1;}
-        | identifier             {$$ = symbolVal($1);} 
+term    : NUMBER                 {$$ = $1;}
+        | VALUE_ID             {$$ = symbolVal($1);} 
         ;
 
 %%
 
-int symbolVal(char symbol) {
+/* ========================================================================== */
+
+double symbolVal(char symbol) {
     int bucket = computeSymbolIndex(symbol);
     return symbols[bucket];
 }
 
-void updateSymbolVal(char symbol, int val) {
+void updateSymbolVal(char symbol, double val) {
     int bucket = computeSymbolIndex(symbol);
     symbols[bucket] = val;
 }
@@ -81,6 +88,10 @@ void yyerror(char *s) {
 }
 
 int main(void) {
+    #ifdef YYDEBUG
+        yydebug = 1;
+    #endif
+
     int i;
     for(i=0; i<52; i++) {
         symbols[i] = 0;
