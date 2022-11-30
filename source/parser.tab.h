@@ -51,9 +51,15 @@ extern int yydebug;
   {
     CMD_PRINT = 258,
     CMD_EXIT = 259,
-    NUMBER = 260,
-    VALUE_ID = 261,
-    UOP_MINUS = 262
+    MF_SIN = 260,
+    MF_COS = 261,
+    MF_TAN = 262,
+    MF_CTG = 263,
+    MF_SQRT = 264,
+    MF_CUBESQRT = 265,
+    NUMBER = 266,
+    VALUE_ID = 267,
+    UOP_MINUS = 268
   };
 #endif
 
@@ -61,13 +67,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 17 "parser.y"
+#line 18 "parser.y"
 
     double dval;
     int ival;
     char id;
 
-#line 71 "parser.tab.h"
+#line 77 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
