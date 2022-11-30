@@ -20,7 +20,7 @@ DIGIT    [0-9]+
 "print"                {return CMD_PRINT;}
 
 [a-zA-Z]               {yylval.id = yytext[0]; return VALUE_ID;}
-[-+*/^=();]             {return yytext[0];}
+[-+*/%^=();]             {return yytext[0];}
 (\.{DIGIT}+)|({DIGIT}+(\.{DIGIT}*)?([eE][+-]?[0-9]+)?) {yylval.dval = atof(yytext); return NUMBER;}
 
 [ \t\n]                ;

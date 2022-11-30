@@ -49,6 +49,7 @@ exp     : assignment ';'          {;}
         | CMD_EXIT ';'            {exit (EXIT_SUCCESS);}
         | CMD_PRINT exp ';'       {printf ("= %3f\n", $2);}
         | '-' exp %prec UOP_MINUS {$$ = -$2;}
+        | exp '%' exp             {$$ = $1 / 100 * $3;}
         | exp '+' exp             {$$ = $1 + $3;}
         | exp '-' exp             {$$ = $1 - $3;}
         | exp '*' exp             {$$ = $1 * $3;}
